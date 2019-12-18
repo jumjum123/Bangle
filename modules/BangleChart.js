@@ -149,5 +149,5 @@ function bangleChart(){
   init();
 }
 exports.bangleChart = function(){
-  return new bangleChart();
+  return bangleChart;
 }
