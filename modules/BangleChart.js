@@ -148,6 +148,6 @@ function bangleChart(){
   };
   init();
 }
-exports.bangleChart = function(){
-  return bangleChart;
+exports.init = function(){
+  return new bangleChart();
 }
