@@ -1,4 +1,4 @@
-var bc = require("https://www.jumware.com/Bangle/modules/BangleChart.js").init();
+var bc = require("https://github.com/jumjum123/Bangle/blob/master/modules/BangleChart.js").init();
 
 var dt = [10,15,55,20];
 var lbl = ["Apple","Beef","Beer","Pills"];
