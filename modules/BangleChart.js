@@ -32,25 +32,25 @@ function bangleChart(){
     polyData = polyData.concat(getArc(centerX,centerY,radius,startAngle,endAngle));
     g.fillPoly(polyData,true);
   }
-  function dataToAngles(data){
+  function dataToRange(data,range){
     var sum = 0;
-    data.map(function(num){return sum += num[0];});
-    return data.map(function(num){return num[0] * 360 / sum;});
+	data.map(function(num){return sum += num;});
+    return data.map(function(num){return num * range / sum;});
   }
   this.cols = [2016,63489,65504,31];
 
-  this.drawLabel = function(x,y,data){
+  this.Label = function(x,y,label){
     var localY = y;
-    for(var i = 0; i < data.length; i++){
+    for(var i = 0; i < label.length; i++){
       g.setColor(this.cols[i]);
       g.fillRect(x,localY,x + 12,localY + 12);
       g.setColor(65535);
-      g.drawString(data[i][1],x + 15,localY );
+      g.drawString(label[i],x + 15,localY );
       localY += 12;
     }
   };
-  this.drawPie = function(centerX,centerY,radius,data){
-    var dataAngle = dataToAngles(data);
+  this.Pie = function(centerX,centerY,radius,data){
+    var dataAngle = dataToRange(data,360);
     var startAngle = 0;
     g.setColor(0);
     g.fillCircle(centerX,centerY,radius);
@@ -62,14 +62,14 @@ function bangleChart(){
     g.setColor(65535);
     g.drawCircle(centerX,centerY,radius);
   };
-  this.drawSlices = function(centerX,centerY,radius,data){
+  this.Slices = function(centerX,centerY,radius,data){
     var rad = radius;
     g.setColor(0);
     g.fillCircle(centerX,centerY,radius);
     var sliceSize = parseInt(radius / data.length) * 0.8;
     for(var i = 0; i < data.length;i++){
       g.setColor(this.cols[i]);
-      drawPiece(centerX,centerY,rad,0,data[i][0] * 3.6);
+      drawPiece(centerX,centerY,rad,0,data[i] * 3.6);
       g.setColor(0);
       rad -= sliceSize;
       g.fillCircle(centerX,centerY,rad);
@@ -77,18 +77,18 @@ function bangleChart(){
     g.setColor(65535);
     g.drawCircle(centerX,centerY,radius);  
   };
-  this.drawSizedPie = function(centerX,centerY,radius,data){
+  this.SizedPie = function(centerX,centerY,radius,data){
     g.setColor(0);
     g.fillCircle(centerX,centerY,radius);
     var pieSize = parseInt(360 / data.length);
     for(var i = 0; i < data.length; i++){
       g.setColor(this.cols[i]);
-      drawPiece(centerX,centerY,radius * data[i][0] / 100,i * pieSize, (i + 1) * pieSize);
+      drawPiece(centerX,centerY,radius * data[i] / 100,i * pieSize, (i + 1) * pieSize);
     }
     g.setColor(65535);
     g.drawCircle(centerX,centerY,radius);
   };
-  this.drawRadar = function(centerX,centerY,radius,data){
+  this.Radar = function(centerX,centerY,radius,data){
     function findRadar(angle){
       g.setColor(65504);
       for(var i = 0; i < data.length; i++){
@@ -114,14 +114,14 @@ function bangleChart(){
       findRadar(p);
     },50);
   };
-  this.drawBar = function(x,y,w,h,dir,value,c){
+  this.Bar = function(x,y,w,h,dir,value,c){
     g.setColor(65535);
     g.drawRect(x,y,x + w, y + h);
     g.setColor(this.cols[c]);
     if(dir == "h") g.fillRect(x + 1, y + h - 1,x + w - 1, y + h - (h - 2) * value / 100);
     else g.fillRect(x + 1,y + 1,x + (w - 2) * value / 100,y + h - 1);
   };
-  this.drawLines = function(x,y,w,h,dt){
+  this.Lines = function(x,y,w,h,dt){
     g.setColor(65535);
     g.drawRect(x,y,x + w, y + h);
     var xw = (w - 2) / dt[0].length,xx,y0 = y + h - 1,yy;
@@ -139,6 +139,49 @@ function bangleChart(){
       }
     }
   };
+  this.Rects = function(x,y,w,h,dt){
+    var v,dataRect = dataToRange(dt,w * h);
+    g.setColor(65535);
+    g.drawRect(x,y,x + w, y + h);
+    for(var i = 0; i < dataRect.length; i++){
+      g.setColor(this.cols[i]);
+	  switch(i % 4){
+        case 0:
+		  v = dataRect[i] / w;
+          g.fillRect(x,y,x + w,y + v);
+          y += v;
+          h -= v;		  
+		  break;
+		case 1:
+          v = dataRect[i] / h;
+          g.fillRect(x,y,x + v,y + h);
+          x += v;
+          w -= v;		  
+		  break;
+		case 2:
+          v = dataRect[i] / w;
+          g.fillRect(x, y + h,x + w, y + h -v);
+          h -= v;		  
+		  break;
+		case 3:
+          v = dataRect[i] / h;
+          g.fillRect(x, y, x + v, y + h);
+		  w -=v;
+		  break;
+	  }
+	}	
+  };
+  this.Bubbles = function(x,y,w,h,dt){
+    g.setColor(65535);
+    g.drawRect(x,y,x + w, y + h);
+    for(var i = 0; i < dt.length;i++){
+      g.setColor(this.cols[i]);
+      for(var j = 0; j < dt[i].length;j++){
+		var data = dt[i][j];
+		g.fillCircle(x + data[0] * w / 100,y + data[1] * h / 100,data[2]);
+	  }
+	}    
+  }
   this.clear = function(){
     if(radarIv){
       clearInterval(radarIv);
